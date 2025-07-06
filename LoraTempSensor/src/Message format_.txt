@@ -1,0 +1,5 @@
+Message format:
+byte destinationAdress
+byte localAddress
+byte messageLenght
+String message

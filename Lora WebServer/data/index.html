@@ -1,0 +1,121 @@
+<!DOCTYPE HTML><html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>ESP32 (LoRa + Server)</title>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      text-align: center;
+    }
+    header {
+      margin: 0;
+      padding-top: 5vh;
+      padding-bottom: 5vh;
+      overflow: hidden;
+      background-image: url(winter);
+      background-size: cover;
+      color: white;
+    }
+    h2 {
+      font-size: 2.0rem;
+    }
+    p { font-size: 1.2rem; }
+    .units { font-size: 1.2rem; }
+    .readings { font-size: 2.0rem; }
+  </style>
+  <title>Smart Slider</title>
+
+  <script src="jquery-1.4.4.min.js" type="text/javascript"></script>
+
+  <script src="smartslider.js" type="text/javascript"></script>
+
+  <link href="smartslider.css" rel="stylesheet" type="text/css" />
+
+  <script type="text/javascript">
+      $(document).ready(function() {
+         
+          $('#trackbar3').strackbar({ callback: onTick3, defaultValue: 20, sliderHeight: 19, sliderWidth: 500, style: 'style3', animate: true, ticks: true, labels: true, trackerHeight: 23, trackerWidth: 23 });
+          
+          $('#text3').on('DOMSubtreeModified', function(){
+              alert("changed");
+          });
+        });
+      
+      function onTick3(value) {
+          $('#text3').html("Niveau minimum Temperature (Celsius): " + value);
+          
+          var data = new URLSearchParams();
+          data.append("TemperatureMin", value);
+
+
+          var xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+              document.getElementById(value).innerHTML = this.responseText;
+            }
+          };
+        xhttp.open("GET", "/setTemperatureAlarm?"+data.toString(), true);
+        xhttp.send();
+      }
+
+  </script>
+</head>
+<body>
+  <header>
+    <h2>ESP32 (LoRa + Server Web)</h2>
+    <p><strong>Dernier paquet recu:<br/><span id="timestamp">%TIMESTAMP%</span></strong></p>
+    <p>LoRa RSSI: <span id="rssi">%RSSI%</span></p>
+  </header>
+<main>
+  <p>
+    <i class="fas fa-thermometer-half" style="color:#059e8a;"></i> Temperature: <span id="temperature" class="readings">%TEMPERATURE%</span>
+    <sup>&deg;C</sup>
+  </p>
+  <p>
+    <i class="fas fa-tint" style="color:#00add6;"></i> Humidite: <span id="humidity" class="readings">%HUMIDITY%</span>
+    <sup>&#37;</sup>
+  </p>
+  <p>
+    <i class="fas fa-angle-double-down" style="color:#e8c14d;"></i> Pression: <span id="pressure" class="readings">%PRESSURE%</span>
+    <sup>hpa</sup>
+  </p>
+  <form action="/get" id="control-id">
+    <h2 style="float: left;">Configuration Niveau Alarme Temperature</h2>
+    <p>
+    <div style="width: 690px; float: left; padding: 20px;">
+    
+      <div style="position: relative">
+          <div id="trackbar3">
+          </div>
+          <div id="text3" style="clear: both; width: 600px; text-align: center;margin-top:4px;">
+          </div>
+      </div>
+    </div>
+  </p>
+  </form>
+</main>
+
+
+<script>
+setInterval(updateValues, 10000, "temperature");
+setInterval(updateValues, 10000, "humidity");
+setInterval(updateValues, 10000, "pressure");
+setInterval(updateValues, 10000, "rssi");
+setInterval(updateValues, 10000, "timestamp");
+
+function updateValues(value) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById(value).innerHTML = this.responseText;
+    }
+  };
+  xhttp.open("GET", "/" + value, true);
+  xhttp.send();
+}
+</script>
+</body>
+</html>
